@@ -46,6 +46,7 @@ function getArtists(req, res){
         }
     });
 }
+
 function saveArtist(req, res){
     const artist = new Artist();
     
@@ -67,8 +68,106 @@ function saveArtist(req, res){
     });
     
 }
+
+function updateArtist(req, res){
+    var artistId = req.params.id;
+    var update= req.body;
+    Artist.findByIdAndUpdate(artistId, update, (err, ArtistUpdate) =>{
+        if(err){
+            res.status(500).send({ message: "Error a Actualizar a usuario"});
+        }else{
+            if(!ArtistUpdate){
+                res.status(404).send({message: "No se a podido Actualizar Usuario"});
+            }else{
+                res.status(200).send({ message: ArtistUpdate});
+            }
+        }
+    });
+}
+
+function deleteArtist(req, res){
+    const artistId = req.params.id;
+
+    Artist.findByIdAndRemove(artistId, (err, artistRemoved) =>{
+        if(err){
+            res.status().send({ message: 'Error al borrar el artista'});
+        }else{
+            if(!artistRemoved){
+                res.status(400).send({ message: 'El artista no ha sido eliminado'});
+            }else{
+                Album.find({ artist: artistRemoved._id}).remove((err, almbumRemoved) => {
+                    if(err){
+                        res.status(500).send({message: "Error al eliminar el album"});
+                    }else{
+                        if(!almbumRemoved){
+                            res.status().send({message: "Error al eliminar el album."});
+                        }else{
+                            Song.find({album: almbumRemoved._id}).remove((err, songRemoved) => {
+                                if(err){
+                                    res.status(500).send({ message: 'Error al eliminar la cancion'});
+                                }else{
+                                    if(!songRemoved){
+                                        res.status(404).send({message: "Error la cancion no ha sido eliminada"});
+                                    }else{
+                                        res.status(200).send({artist: artistRemoved});
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
+            }
+        }
+    });
+}
+
+function uploadImage(req, res){
+    const artistId = req.params.id;
+    const file_name ="No subido ............";
+    if(req.files){
+        const file_path = req.files.image.path;
+        const file_split = file_path.split('\\');
+        const file_name = file_split[2];
+        const ext_split = file_name.split('\.');
+        const file_ext = ext_split[1];
+        if(file_ext == 'png' || file_ext == 'jpg' || file_ext == 'gif'){
+            Artist.findByIdAndUpdate(artistId,{image: file_name}, (err, artistUpdate) => {
+                if(!artistUpdate){
+                    res.status(404).send({ message: 'No se puede actualizar el artista'});
+                }else{
+                    res.status(200).send({ user: artistUpdate});
+                }
+            });
+        }else{
+            res.status(200).send({ message: 'Extensión del archivo no valida'});
+        }
+
+        console.log(file_path);
+    }else{
+        res.status(200).send({ message: 'No se  a subido la imagen'});
+    }
+
+}
+
+function getImageFile(req, res){
+    const imageFile = req.params.imageFile;
+    const path_file = './uploads/artist/'+imageFile;
+    fs.exists(path_file, function(exists){
+        if(exists){
+            res.sendFile(path.resolve(path_file));
+        }else{
+            res.status(200).send({message: 'No existe la imagen ......' });
+        }
+    });
+
+}
+
 module.exports = {
     getArtist,
     saveArtist,
-    getArtists
+    getArtists,
+    updateArtist,
+    deleteArtist,
+    uploadImage,
+    getImageFile
 }

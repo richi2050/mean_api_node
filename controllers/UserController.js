@@ -106,7 +106,7 @@ function uploadImage(req, res){
                 if(!userUpdate){
                     res.status(404).send({ message: 'No se puede actualizar el usurio'});
                 }else{
-                    res.status(200).send({ user: userUpdate});
+                    res.status(200).send({ image: file_name, user: userUpdate});
                 }
             });
         }else{
@@ -117,7 +117,6 @@ function uploadImage(req, res){
     }else{
         res.status(200).send({ message: 'No se  a subido la imagen'});
     }
-
 }
 
 function getImageFile(req, res){
