@@ -1,0 +1,6 @@
+.DS_Store
+.tern-project
+node_modules
+proy_api/node_modules
+*/node_modules
+
