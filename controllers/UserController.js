@@ -52,7 +52,7 @@ function loginUser(req, res){
             res.status(500).send({message : 'Error en la peticion'});
         }else{
             if(!user){
-                res.status(404).send({ message: 'Elusuario no existe'});
+                res.status(404).send({ message: 'El usuario no existe'});
             }else{
                 bcrypt.compare(password, user.password, function(err, check){
                     if(check){
